@@ -2,6 +2,7 @@ from openpyxl import Workbook
 from openpyxl import load_workbook
 import requests
 from bs4 import BeautifulSoup
+from tld import get_tld
 #create/open the file
 try:
     workbook = load_workbook(filename="sample.xlsx")
@@ -18,7 +19,6 @@ sheet.cell(row=1, column=2).value= "Link"
 #count the already existing rows
 a=0;
 for row in sheet.rows:
-    print(row[0].value)
     a=a+1;
 #insert keywords
 queries = ["Medtechinnovator", "startup competition", "startup award"]
@@ -32,6 +32,16 @@ for query in queries:
     for row in sheet.rows:
         if j==row[1].value:
             k=1
+            break
+        #removes multiple results from the same website
+        try:
+            info=get_tld(j,as_object=True)
+            info1=get_tld(row[1].value,as_object=True)
+            if info.parsed_url[1]==info1.parsed_url[1]:
+                k=1
+                break
+        except:
+            continue
     #if it is not already present on the sheet, find the title using BeautifulSoup
     if k==0:
         url=j 
